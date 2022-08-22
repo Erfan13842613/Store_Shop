@@ -50,25 +50,6 @@ class User_Tools:
             return True
         return False
 
-#     @staticmethod
-#     def Send_Sms(user):
-#         url = "https://sms-wrapper-uat.k8s.daan.ir/api/v1/sms/send?sms_service_id=0"
-#         phone_number = f"{user.phone}".replace('0', '98')
-#         payload = json.dumps({
-#             "msisdn": 989191036297,
-#             "message": f"""
-# Thanks For Registering In This Site .
-# Your Active Code Is  : {user.secret_code}"""
-#         })
-#         headers = {
-#             'X-API-KEY': '11111',
-#             'Content-Type': 'application/json'
-#         }
-
-#         response = requests.request("POST", url, headers=headers, data=payload)
-
-#         print(response.text)
-
     @staticmethod
     def Send_Sms(user):
         url = "https://sms-wrapper-uat.k8s.daan.ir/api/v1/sms/send?sms_service_id=0"
