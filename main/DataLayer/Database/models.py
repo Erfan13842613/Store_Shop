@@ -18,7 +18,7 @@ class User(db.Model, UserMixin):
     role = db.Column(db.String(255), nullable=False, default="USER")
     phone = db.Column(
         db.String(255), default="You Don't have Any Phone Number Yet !")
-    is_active = db.Column(db.Integer, nullable=False, default=0)
+    user_is_active = db.Column(db.Integer, nullable=False, default=0)
     secret_code = db.Column(db.Integer, nullable=False)
     # Realation One To Many To UserProduct #ID : 4050
     cilent_product = db.relationship(

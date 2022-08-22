@@ -4,14 +4,13 @@ from main.Core.Db_Core import Public_Service
 from main.DataLayer.Core.User_Services import User_Service
 from main.DataLayer.Database.models import Card, User
 
-from main.Route.Users.forms import AccountForm, ChangePasswordForm, Confrim_Email_Form, SignInForm, SignUpForm
+from main.Route.Users.forms import AccountForm, ChangePasswordForm, Confrim_Email_Form, SignInForm, SignUpForm, Static_Confrim_Email_Form
 from main.Route.Users.tools import User_Tools
 
 users = Blueprint('users', __name__)
 user_tools = User_Tools()
 user_service = User_Service()
 Db = Public_Service(User)
-
 Db_Card = Public_Service(Card)
 
 
@@ -24,11 +23,12 @@ def SignIn():
 
     form = SignInForm()
     if form.validate_on_submit():
-        if user_tools.Login_User(form):
+        is_ok = user_tools.Login_User(form)
+        if is_ok:
             flash('You Signed in successfully.', 'success')
             return redirect(url_for('base.HomePage'))
-        else:
-            flash('Invalid email or password Or No Verified Email', 'danger')
+        if is_ok is False:
+            flash('Your email or your password is incorrect !', 'danger')
     return render_template('UserTemplate/SignIn.html', form=form)
 
 
@@ -44,9 +44,7 @@ def SignUp():
         user = user_tools.SignUp_User(form=form)
         if user:
             flash('Your Account Was Created Successfully !', 'success')
-            flash('An Sms Inculding Verification Has Been Sent For {} '.format(
-                form.email.data), 'info')
-            return redirect(url_for('users.Confrim_Email', user_id=user.id))
+            return redirect(url_for('users.SignIn'))
         else:
             flash('There Was An Error During Signing Up !', 'danger')
     return render_template('UserTemplate/SignUp.html', form=form)
@@ -97,7 +95,7 @@ def Change_Account_Info():
     if form.validate_on_submit():
         current_user.email = form.email.data
         current_user.username = form.username.data
-        current_user.phone = form.phone.data
+        current_user.phone = "0{}".format(form.phone.data)
         current_user.bio = form.bio.data
         Db.Save_Changes()
         flash('Your account info has been saved.', 'success')
@@ -119,15 +117,33 @@ def Logout():
 
 @users.route('/active/email/<int:user_id>', methods=['GET', 'POST'])
 @users.route('/home/active/email/<int:user_id>', methods=['GET', 'POST'])
+@login_required
 def Confrim_Email(user_id):
     user = Db.Get_By_Id_Or_404(user_id)
+    user_tools.Send_Sms(user)
     form = Confrim_Email_Form()
     if form.validate_on_submit():
         if form.confrim_code.data == user.secret_code:
-            user.is_active = 1
+            user.user_is_active = 1
             Db.Save_Changes()
-            flash('Your Account Is Acctive Know','success')
+            flash('Your Account Is Acctive Know', 'success')
             return redirect(url_for('users.SignIn'))
         else:
             flash('Wronge Verify Code', 'danger')
-    return render_template('UserTemplate/Confrim_Email.html', form=form)
+    return render_template('UserTemplate/Confrim_Email.html', form=form, user=user)
+
+
+@users.route('/confrim_email', methods=['GET', 'POST'])
+@users.route('/home/confrim_email', methods=['GET', 'POST'])
+def Static_Confrim_Email():
+    form = Static_Confrim_Email_Form()
+    if form.validate_on_submit():
+        user = user_service.Get_User_By_Phone(form.phone.data)
+        if user and user.secret_code == form.confrim_code.data:
+            user.user_is_active = 1
+            Db.Save_Changes()
+            flash('Your Account Is Acctive Know', 'success')
+            return redirect(url_for('users.SignIn'))
+        else:
+            flash('Wronge Verify Code or it has been expired !', 'success')
+    return render_template('UserTemplate/Static_Confrim_Email.html', form=form)

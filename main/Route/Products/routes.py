@@ -5,25 +5,31 @@ from main.DataLayer.Core.Cilent_Services import Cilent_Service
 from main.DataLayer.Database.models import CilentProduct, Product
 from main.Route.Products.forms import Build_New_Product_Form
 from main.Route.Products.tools import Product_Tools
+from main.Route.Users.tools import User_Tools
 
 
 products = Blueprint('products', __name__)
 Db_Product = Public_Service(Product)
 product_tools = Product_Tools()
 cilent_service = Cilent_Service()
+user_tools = User_Tools()
 
 
 @products.route('/user/new_purchase/<int:product_id>', methods=['GET', 'POST'])
 @products.route('/home/user/new_purchase/<int:product_id>', methods=['GET', 'POST'])
 def Sign_New_Purchase(product_id):
 
-    if not(current_user.is_authenticated):
+    if not (current_user.is_authenticated):
         flash('You are not authenticated. Please login to purchase', 'warning')
         return redirect(url_for('base.HomePage'))
 
     current_product = Db_Product.Get_By_Id_Or_404(product_id)
 
-    if product_tools.Sign_New_purchase(current_product,current_user):
+    if user_tools.Is_Account_Active(current_product.product_owner):
+        flash('Your Account Is Not Active', 'danger')
+        return redirect(url_for('base.HomePage'))
+
+    if product_tools.Sign_New_purchase(current_product, current_user):
         flash('Added Your Cart !', 'success')
 
     return redirect(url_for('base.HomePage'))
@@ -57,6 +63,10 @@ def Update_Product(product_id):
     if product.product_owner != current_user:
         abort(403)
 
+    if user_tools.Is_Account_Active(product.product_owner):
+        flash('Your Account Is Not Active', 'danger')
+        return redirect(url_for('base.HomePage'))
+
     form = Build_New_Product_Form()
     if form.validate_on_submit():
         product.product_name = form.product_name.data
@@ -85,6 +95,10 @@ def Delete_Product(product_id):
 
     if product.product_owner != current_user:
         abort(403)
+
+    if user_tools.Is_Account_Active(product.product_owner):
+        flash('Your Account Is Not Active', 'danger')
+        return redirect(url_for('base.HomePage'))
 
     Db_Product.Del_To(product)
     flash("Your Product Has been deleted.", 'success')

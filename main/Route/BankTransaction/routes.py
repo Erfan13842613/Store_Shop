@@ -5,13 +5,15 @@ from main.DataLayer.Core.Transaction_Services import Transaction_Service
 from main.DataLayer.Core.User_Services import User_Service
 from main.DataLayer.Database.models import Card, Transaction, User
 from main.Route.BankTransaction.forms import TransactionForm
+from main.Route.Users.tools import User_Tools
 
 transactions = Blueprint('transactions', __name__)
 Db_Transaction = Public_Service(Transaction)
 trans_tools = Transaction_Service()
 user_service = User_Service()
+user_tools=User_Tools()
 
-@staticmethod
+
 def validate_userbank(current_user):
     user_bank_account=user_service.Get_BankAccount_By_User(current_user)
     if user_bank_account is None:
@@ -20,12 +22,18 @@ def validate_userbank(current_user):
     return False
 
 
+
+
 @transactions.route('/trans_list', methods=['GET', 'POST'])
 @transactions.route('/home/trans_list', methods=['GET', 'POST'])
 @login_required
 def Transaction_List():
     
     if validate_userbank(current_user):
+        return redirect(url_for('base.HomePage'))
+    
+    if user_tools.Is_Account_Active(current_user):
+        flash('Your Account Is Not Active','danger')
         return redirect(url_for('base.HomePage'))
 
     transactions = trans_tools.Get_All_Transactions_By_User(current_user)
@@ -44,6 +52,10 @@ def Update_Transaction(trans_id):
 
     if transaction.card.user != current_user:
         abort(304)
+    
+    if user_tools.Is_Account_Active(transaction.card.user):
+        flash('Your Account Is Not Active','danger')
+        return redirect(url_for('base.HomePage'))
 
     form = TransactionForm()
     if form.validate_on_submit():
@@ -72,6 +84,10 @@ def Delete_Transaction(trans_id):
 
     if transaction.card.user != current_user:
         abort(304)
+
+    if user_tools.Is_Account_Active(transaction.card.user):
+        flash('Your Account Is Not Active','danger')
+        return redirect(url_for('base.HomePage'))    
 
     Db_Transaction.Del_To(transaction)
     flash('Your transaction has been deleted.', 'success')

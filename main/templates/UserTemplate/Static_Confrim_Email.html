@@ -6,8 +6,23 @@
         {{ form.hidden_tag() }}
         <fieldset class="form-group">
             <legend class="border-bottom mb-4">
-                Confrim Your Email for : {{user.email}} and {{user.phone}}
+                Confrim Your Email 
             </legend>
+
+            <div class="form-group">
+                {{ form.phone.label(class="form-label") }}
+                {% if form.phone.errors %}
+                {{ form.phone(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.phone.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.phone(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+
             <div class="form-group">
                 {{ form.confrim_code.label(class="form-label") }}
                 {% if form.confrim_code.errors %}
@@ -38,9 +53,7 @@
 
 <div class="border-top pt-3 mt-3">
     <small class="text-muted">
-        Change Your Phone Number ? <a href="{{url_for('users.Static_Confrim_Email')}}"
-            class="btn btn-secondary btn-sm">Change Phone</a>
+        Didn't Recive Sms ? <a href="{{url_for('base.HomePage')}}" class="btn btn-secondary btn-sm">Resend</a>
     </small>
 </div>
-
 {% endblock content %}

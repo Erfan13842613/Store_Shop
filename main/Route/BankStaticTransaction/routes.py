@@ -5,6 +5,7 @@ from flask_login import current_user, login_required
 from main.DataLayer.Core.Static_Transaction_Services import Static_Transaction_Service
 from main.Route.BankStaticTransaction.forms import Create_Static_Transaction_Form
 from main.Route.BankStaticTransaction.tools import Static_Transaction_Tools
+from main.Route.Users.tools import User_Tools
 from ...DataLayer.Database.models import Bank, StaticTransaction
 
 from ...Core.Db_Core import Public_Service
@@ -14,6 +15,7 @@ Bank_Pu_Service = Public_Service(Bank)
 static_pu_service = Public_Service(StaticTransaction)
 static_service = Static_Transaction_Service()
 static_tools = Static_Transaction_Tools()
+user_tools = User_Tools()
 
 
 @static.route('/user/bank/<int:bank_id>/transaction', methods=['GET', 'POST'])
@@ -25,6 +27,11 @@ def Static_Transaction(bank_id):
 
     if bank_account.user != current_user:
         abort(403)
+
+    if user_tools.Is_Account_Active(bank_account.user):
+        flash('Your Account Is Not Active','danger')
+        return redirect(url_for('base.HomePage'))
+
     transactions = static_service.Get_Paginated_Transactions_By_Bank(page,
                                                                      bank_account)
     return render_template('StaticTransactionTemplate/Static_Transaction_List.html', transactions=transactions, bank_account=bank_account)
@@ -38,6 +45,11 @@ def Create_Trans(bank_id):
 
     if account.user != current_user:
         abort(403)
+
+    if user_tools.Is_Account_Active(account.user):
+        flash('Your Account Is Not Active','danger')
+        return redirect(url_for('base.HomePage'))
+
     form = Create_Static_Transaction_Form()
     if form.validate_on_submit():
         static_tools.Do_Create_Static_Transaction(form, account)
@@ -54,6 +66,11 @@ def Update_Trans(trans_id):
 
     if transaction.bank.user != current_user:
         abort(403)
+
+    if user_tools.Is_Account_Active(transaction.bank.user):
+        flash('Your Account Is Not Active','danger')
+        return redirect(url_for('base.HomePage'))
+
     form = Create_Static_Transaction_Form()
     if form.validate_on_submit():
         transaction.bank.balance = transaction.bank.balance - \
@@ -80,6 +97,10 @@ def Delete_Trans(trans_id):
 
     if transaction.bank.user != current_user:
         abort(403)
+
+    if user_tools.Is_Account_Active(transaction.bank.user):
+        flash('Your Account Is Not Active','danger')
+        return redirect(url_for('base.HomePage'))
 
     static_pu_service.Del_To(transaction)
     flash('Deleted !', 'success')
