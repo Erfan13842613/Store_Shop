@@ -1,0 +1,37 @@
+{% extends 'UserTemplate/Account.html' %}
+{% block card %}
+<li
+class="list-group-item d-flex justify-content-between align-items-center p-3"
+>
+<i class="fas fa-globe fa-lg text-warning"></i>
+<p class="mb-0">your card info</p>
+</li>
+<li
+class="list-group-item d-flex justify-content-between align-items-center p-3"
+>
+<i class="fab fa-github fa-lg" style="color: #333333"></i>
+<p class="mb-0">Card Number : {{ card.card_number }}</p>
+</li>
+<li
+class="list-group-item d-flex justify-content-between align-items-center p-3"
+>
+<i class="fab fa-twitter fa-lg" style="color: #55acee"></i>
+<p class="mb-0">Cvv2 : {{ card.card_cvv2 }}</p>
+</li>
+<li
+class="list-group-item d-flex justify-content-between align-items-center p-3"
+>
+<i class="fab fa-instagram fa-lg" style="color: #ac2bac"></i>
+<p class="mb-0">Card Owner : {{ card.fullname }}</p>
+</li>
+<li
+class="list-group-item d-flex justify-content-between align-items-center p-3"
+>
+<i class="fab fa-facebook-f fa-lg" style="color: #3b5998"></i>
+<p class="mb-0">
+  Card Expire Time : {{ card.card_expire_time }}
+</p>
+</li>
+{% endblock card %}
+
+

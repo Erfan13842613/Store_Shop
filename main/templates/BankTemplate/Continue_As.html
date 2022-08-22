@@ -1,0 +1,31 @@
+{% extends 'layout.html' %} {% block content %}
+
+<!-- Here -->
+<div class="dropdown">
+  <button
+    class="btn btn-secondary btn-sm dropdown-toggle"
+    type="button"
+    data-bs-toggle="dropdown"
+    aria-expanded="false"
+  >
+    Your accounts
+  </button>
+  <ul class="dropdown-menu">
+    {% if accounts %} {% else %}
+    <div class="alert alert-danger">
+      You Don't Have Any Bank Account And accounts
+    </div>
+    {% endif %} {% for i in accounts %}
+    <li>
+      <a
+        class="dropdown-item"
+        href="{{ url_for('static.Static_Transaction',bank_id=i.id) }}"
+        >{{ i.fullname }} : {{ i.password }}</a
+      >
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+<!-- Here -->
+
+{% endblock content %}

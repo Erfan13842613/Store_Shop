@@ -1,0 +1,55 @@
+{% extends 'layout.html' %} {% block content %}
+<a href="{{ url_for('static.Create_Trans',bank_id=bank_account.id) }}" class="btn btn-secondary btn-sm">Create New
+  Transaction</a>
+<a href="{{ url_for('accounts.Increase_Balance',bank_id=bank_account.id) }}" class="btn btn-secondary btn-sm">Increase
+  Your Bank Sallary</a>
+<table class="table table-striped">
+  <thead>
+    <th>Fullname</th>
+    <th>Current_Balance</th>
+    <th>Spends</th>
+    <th>Date Time Of Spending</th>
+    <th>Date Time Of Creating This</th>
+    <th>Reason</th>
+    <th></th>
+  </thead>
+  <tbody>
+    {% for item in transactions.items %}
+    <tr>
+      <td>{{ item.bank.fullname }}</td>
+      <td>{{ item.remained_money }}$</td>
+      <td>{{ item.changed_money }}$</td>
+      <td>{{ item.started_date }}</td>
+      <td>{{ item.created_date }}</td>
+      <td>
+        <!-- Here -->
+        <div class="dropdown">
+          <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
+            aria-expanded="false">
+            Reason
+          </button>
+          <ul class="dropdown-menu">
+            <li>
+              {{ item.reason }}
+            </li>
+          </ul>
+        </div>
+        <!-- Here -->
+      </td>
+      <td>
+        <a href="{{ url_for('static.Update_Trans',trans_id=item.id) }}" class="btn btn-primary btn-sm">Edit</a>
+        <a href="{{ url_for('static.Delete_Trans',trans_id=item.id) }}" class="btn btn-danger btn-sm">Omit</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% for page_num in transactions.iter_pages() %}
+{% if page_num %}
+<a href="{{ url_for('static.Static_Transaction',page=page_num,bank_id=bank_account.id) }}"
+  class="btn btn-primary btn-sm">{{ page_num }}</a>
+{% else %}
+...
+{% endif %}
+{% endfor %}
+{% endblock content %}

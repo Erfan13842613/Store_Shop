@@ -1,0 +1,35 @@
+{% extends 'layout.html' %} {% block content %}
+
+<table class="table table-striped">
+  <thead>
+    <th>Fullname</th>
+    <th>remain money</th>
+    <th>spend money</th>
+    <th>Card Number</th>
+    <th>Date</th>
+    <th></th>
+  </thead>
+  {% for item in transactions %}
+  <tr>
+    <td>{{ item.card.fullname }}</td>
+    <td>{{ item.remained_money }}</td>
+    <td>{{ item.changed_money }}</td>
+    <td>{{ item.card.card_number }}</td>
+    <td>{{ item.created_date }}</td>
+    <td>
+      <a
+        href="{{ url_for('transactions.Delete_Transaction',trans_id=item.id) }}"
+        class="btn btn-danger btn-sm"
+        >Delete</a
+      >
+      <a
+        href="{{ url_for('transactions.Update_Transaction',trans_id=item.id) }}"
+        class="btn btn-primary btn-sm"
+        >Update</a
+      >
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+
+{% endblock content %}

@@ -1,0 +1,39 @@
+{% extends 'layout.html' %} {% block content %}
+
+<div class="content-section">
+  <form action="" method="post">
+    {{ form.hidden_tag() }}
+    <fieldset class="form-group">
+      <legend class="border-bottom mb-4">
+        Increase Your Balance : {{bank_account.balance}} (Current_Balance)
+      </legend>
+
+      <div class="form-group">
+        {{ form.sallary.label(class="form-label") }} {% if form.sallary.errors %} {{
+        form.sallary(class="form-control form-control-lg is-invalid") }}
+        <div class="invalid-feedback">
+          {% for error in form.sallary.errors %}
+          <span>{{ error }}</span>
+          {% endfor %}
+        </div>
+        {% else %} {{ form.sallary(class="form-control form-control-lg") }} {%
+        endif %}
+      </div>
+    </fieldset>
+
+    <div class="form-group mt-3">
+      {{ form.submit(class="btn btn-primary") }}
+    </div>
+  </form>
+</div>
+
+<div class="border-top pt-3 mt-3">
+  <small class="text-muted">
+    Return Home Page ?
+    <a href="{{url_for('base.HomePage')}}" class="btn btn-secondary btn-sm"
+      >Home</a
+    >
+  </small>
+</div>
+
+{% endblock content %}

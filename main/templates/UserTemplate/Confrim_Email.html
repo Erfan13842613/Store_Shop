@@ -1,0 +1,40 @@
+{% extends 'layout.html' %}
+{% block content %}
+
+<div class="content-section">
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">
+                Sign In
+            </legend>
+
+            <div class="form-group">
+                {{ form.confrim_code.label(class="form-label") }}
+                {% if form.confrim_code.errors %}
+                {{ form.confrim_code(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.confrim_code.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.confrim_code(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+
+        </fieldset>
+
+        <div class="form-group mt-3">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
+</div>
+
+<div class="border-top pt-3 mt-3">
+    <small class="text-muted">
+        return Back The Home ? <a href="{{url_for('base.HomePage')}}" class="btn btn-secondary btn-sm">Home Page</a>
+    </small>
+</div>
+
+{% endblock content %}

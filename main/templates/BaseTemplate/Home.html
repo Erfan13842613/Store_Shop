@@ -1,0 +1,70 @@
+{% extends 'layout.html' %} {% block content %}
+<div class="content-section">
+  {% if current_user.is_authenticated %}
+  <section class="bg-dark py-5 text-light text-center">
+    <h1 class="text-warning">
+      Take a look our products
+      <hr />
+      <h6 class="text-light text-center"> Any Items In Each Where You Want ! </h6>
+    </h1>
+  </section>
+
+  <div class="content-section">
+    <section style="background-color: #eee;">
+        <div class="container py-5">
+          <div class="row justify-content-center g-4">
+            {% for item in products %}
+            <div class="col-md-8 col-lg-6 col-xl-4">
+              <div class="card text-black">
+                <i class="fab fa-apple fa-lg pt-3 pb-1 px-3"></i>
+                <img src="https://mdbcdn.b-cdn.net/img/Photos/Horizontal/E-commerce/Products/3.webp"
+                  class="card-img-top" alt="Apple Computer" />
+                <div class="card-body">
+                  <div class="text-center">
+                    <h5 class="card-title">Believing is seeing</h5>
+                    <p class="text-muted mb-4">{{ item.product_name }}</p>
+                  </div>
+                  <div>
+                    <div class="d-flex justify-content-between">
+                      <span>Name</span><span>{{ item.product_name }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                      <span>Summary</span><span>{{ item.product_summary }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                      <span>Gender</span><span>{{ item.product_gender }}</span>
+                    </div>
+                  </div>
+                  <div class="d-flex justify-content-between total font-weight-bold mt-4">
+                    <span>Total</span><span>{{ item.product_price }}$</span>
+                  </div>
+                  
+                </div>
+                <a href="{{ url_for('products.Sign_New_Purchase',product_id=item.id) }}" class="btn btn-secondary btn-sm">Add Your Cart</a>
+                {% if item.product_owner.role=="SELLER" and item.product_owner==current_user  %}
+                <a href="{{ url_for('products.Update_Product',product_id=item.id) }}" class="btn btn-primary btn-sm">Update</a>
+                <a href="{{ url_for('products.Delete_Product',product_id=item.id) }}" class="btn btn-danger btn-sm">Delete</a>
+                {% endif %}
+              </div>
+            </div>
+
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+  </div>
+
+  <section class="bg-primary py-5 text-light text-center">
+    <div class="container">
+        <h4>There is about +1200 sellers and providers </h4>
+        <hr>
+        <h6 class="text-light">Join Us To Day 1$ per month !</h6>
+    </div>
+  </section>
+  {% else %}
+  <div class="alert alert-danger">
+    To Continue Browesing Our Site , Please Sign In / Up Now !
+  </div>
+  {% endif %}
+</div>
+{% endblock content %}
