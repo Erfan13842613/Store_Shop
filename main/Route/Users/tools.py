@@ -32,7 +32,6 @@ class User_Tools:
                     email=form.email.data,
                     password=Db_Sec.Hash_Password(form.password.data),
                     role="SELLER" if form.role.data else "USER",
-                    # phone="0{}".format(form.phone.data),
                     secret_code=Sec_Service.Generate_Random_Secret_Key(4000, 6000))
         P_Service.Add_To(user)
         return user
