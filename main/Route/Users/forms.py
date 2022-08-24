@@ -2,12 +2,14 @@ from flask_login import current_user
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, IntegerField, EmailField, SubmitField, BooleanField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+from main.Core.Db_Core import Security
 from main.Core.Security import Security_Validator
 from main.DataLayer.Core.User_Services import User_Service
 from main.DataLayer.Database.models import User
 
 Db_User = User_Service()
 Security_Val = Security_Validator()
+Securities = Security(User)
 
 
 class AccountForm(FlaskForm):
@@ -81,6 +83,11 @@ class ChangePasswordForm(FlaskForm):
     confrim_new_password = PasswordField('ConfrimPassword', validators=[DataRequired(
         'This Field Is Required'), Length(1, 255, 'More Than Standard Lenght')])
     submit = SubmitField('Change')
+
+    def validate_new_password(self, new_password):
+        if Securities.Check_Password_Matching(current_user, new_password.data):
+            raise ValidationError(
+                'This Is Your Old Password Please Opt A New One !')
 
 
 class RequestResetForm(FlaskForm):

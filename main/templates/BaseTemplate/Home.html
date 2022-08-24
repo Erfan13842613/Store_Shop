@@ -3,7 +3,8 @@
   {% if current_user.is_authenticated %}
   {% if current_user.user_is_active == 0 %}
   <div class="alert alert-warning">
-    Your Account Isn't Activated Yet ! <a href="{{ url_for('users.Change_Account_Info') }}" class="btn btn-danger btn-sm">Add Phone</a>
+    Your Account Isn't Activated Yet ! <a href="{{ url_for('users.Change_Account_Info') }}"
+      class="btn btn-danger btn-sm">Add Phone</a>
   </div>
   {% endif %}
   <section class="bg-dark py-5 text-light text-center">
@@ -72,6 +73,19 @@
   {% else %}
   <div class="alert alert-danger">
     To Continue Browesing Our Site , Please Sign In / Up Now !
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="error-template">
+        <h1>
+          Oops!</h1>
+        <h2>
+          404 Not Found</h2>
+        <div class="error-details">
+          This Is Not A Web Page You Are Looking For !
+        </div>
+      </div>
+    </div>
   </div>
   {% endif %}
 </div>

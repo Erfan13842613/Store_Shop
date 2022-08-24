@@ -1,10 +1,12 @@
+import time
 from flask import Blueprint, flash, redirect, abort, render_template, request, url_for
 from flask_login import current_user, login_required, logout_user
 from main.Core.Db_Core import Public_Service
+from main.Core.Security import Email_Token_Security
 from main.DataLayer.Core.User_Services import User_Service
 from main.DataLayer.Database.models import Card, User
 
-from main.Route.Users.forms import AccountForm, ChangePasswordForm, Confrim_Email_Form, SignInForm, SignUpForm, Static_Confrim_Email_Form
+from main.Route.Users.forms import AccountForm, ChangePasswordForm, Confrim_Email_Form, SignInForm, SignUpForm
 from main.Route.Users.tools import User_Tools
 
 users = Blueprint('users', __name__)
@@ -120,30 +122,28 @@ def Logout():
 @login_required
 def Confrim_Email(user_id):
     user = Db.Get_By_Id_Or_404(user_id)
-    user_tools.Send_Sms(user)
+    if user.user_is_active == 1:
+        return redirect(url_for('base.HomePage'))
+
     form = Confrim_Email_Form()
     if form.validate_on_submit():
         if form.confrim_code.data == user.secret_code:
             user.user_is_active = 1
             Db.Save_Changes()
             flash('Your Account Is Acctive Know', 'success')
-            return redirect(url_for('users.SignIn'))
+            return redirect(url_for('base.HomePage'))
         else:
             flash('Wronge Verify Code', 'danger')
+
     return render_template('UserTemplate/Confrim_Email.html', form=form, user=user)
 
 
-@users.route('/confrim_email', methods=['GET', 'POST'])
-@users.route('/home/confrim_email', methods=['GET', 'POST'])
-def Static_Confrim_Email():
-    form = Static_Confrim_Email_Form()
-    if form.validate_on_submit():
-        user = user_service.Get_User_By_Phone(form.phone.data)
-        if user and user.secret_code == form.confrim_code.data:
-            user.user_is_active = 1
-            Db.Save_Changes()
-            flash('Your Account Is Acctive Know', 'success')
-            return redirect(url_for('users.SignIn'))
-        else:
-            flash('Wronge Verify Code or it has been expired !', 'success')
-    return render_template('UserTemplate/Static_Confrim_Email.html', form=form)
+@users.route('/Send/Sms/<int:user_id>')
+def Send_SMS(user_id):
+    user = Db.Get_By_Id_Or_404(user_id)
+    if user.user_is_active == 1:
+        return redirect(url_for('base.HomePage'))
+    if user_tools.Send_Sms(user) == False:
+        flash('This Is Equal To Zero , Error In Merging The Number')
+    flash('You Have 2 Mintues To Enter Your Code OtherWise The Code Will Expire !', 'info')
+    return redirect(url_for('users.Confrim_Email', user_id=user_id))

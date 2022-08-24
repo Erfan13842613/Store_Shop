@@ -9,7 +9,6 @@ import json
 
 
 class User_Tools:
-    blocked_time = 0
     global Db_Sec, D_Service, P_Service, Sec_Service
 
     @staticmethod
@@ -32,7 +31,7 @@ class User_Tools:
                     email=form.email.data,
                     password=Db_Sec.Hash_Password(form.password.data),
                     role="SELLER" if form.role.data else "USER",
-                    secret_code=Sec_Service.Generate_Random_Secret_Key(4000, 6000))
+                    secret_code=Sec_Service.Generate_Random_Secret_Key(40000, 60000))
         P_Service.Add_To(user)
         return user
 
@@ -42,7 +41,7 @@ class User_Tools:
         D_Service = User_Service()
         P_Service = Public_Service(User)
         user = D_Service.Get_User_By_Email(current_user.email)
-        if Db_Sec.Check_Password_Matching(user.password, form.old_password.data):
+        if Db_Sec.Check_Password_Matching(user, form.old_password.data):
             user.password = Db_Sec.Hash_Password(form.new_password.data)
             P_Service.Save_Changes()
             return True
@@ -50,6 +49,11 @@ class User_Tools:
 
     @staticmethod
     def Send_Sms(user):
+        P_Service = Public_Service(User)
+        Sec_Service = Email_Token_Security()
+        user.secret_code = Sec_Service.Generate_Random_Secret_Key(40000, 60000)
+        P_Service.Save_Changes()
+
         url = "https://sms-wrapper-uat.k8s.daan.ir/api/v1/sms/send?sms_service_id=0"
         phone_number = f"{user.phone}".replace('0', '98', 1)
         payload = json.dumps({
@@ -63,19 +67,12 @@ class User_Tools:
 
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.text)
-        User_Tools.blocked_time += 1
-        return User_Tools.blocked_time
-
-    @staticmethod
-    def Block_Sms_Sec(user):
-        if User_Tools.Send_Sms(user) == 3:
-            time.sleep(15)
-            return False
-        else:
-            return True
+        user.secret_code = Sec_Service.Generate_Random_Secret_Key(40000, 60000)
+        P_Service.Save_Changes()
 
     @staticmethod
     def Is_Account_Active(user):
         if user.user_is_active == 0:
             return True
         return False
+

@@ -1,6 +1,10 @@
 {% extends 'layout.html' %}
 {% block content %}
 
+<div class="alert alert-info">
+    An Sms Including Active Code Have Been Sent For You ! Please Check Your Phone And Continue
+</div>
+
 <div class="content-section">
     <form action="" method="post">
         {{ form.hidden_tag() }}
@@ -30,17 +34,44 @@
     </form>
 </div>
 
+<p class="text-danger lead">You Have Only 2ms To Submit Your Active Code.</p>
+<span class="text-muted" id="timer">120s</span>
+<progress class="progress-bar bg-warning" id="progressBar" max="120" value="120">
+    Progress
+</progress>
+<script type="text/javascript">
+    const timerElement = document.getElementById("timer");
+    const progressBar = document.getElementById("progressBar");
+
+    let timerCounter = progressBar.max;
+
+    const interval = setInterval(() => {
+        if (timerCounter <= 1) {
+            window.location.href = "{{ url_for('users.Confrim_Email',user_id=current_user.id) }}"
+            clearInterval(interval);
+        }
+
+
+        timerCounter = timerCounter - 1;
+        timerElement.innerText = timerCounter + "s";
+        progressBar.value = timerCounter;
+    }, 1000);
+
+
+</script>
+
+<div class="border-top pt-3 mt-3">
+    <small class="text-muted">
+        Didn't Recieve Sms ? <a href="{{ url_for('users.Send_SMS',user_id=current_user.id) }}" class="btn btn-primary btn-sm">Resend</a>
+    </small>
+</div>
+
+
 <div class="border-top pt-3 mt-3">
     <small class="text-muted">
         return Back The Home ? <a href="{{url_for('base.HomePage')}}" class="btn btn-secondary btn-sm">Home Page</a>
     </small>
 </div>
 
-<div class="border-top pt-3 mt-3">
-    <small class="text-muted">
-        Change Your Phone Number ? <a href="{{url_for('users.Static_Confrim_Email')}}"
-            class="btn btn-secondary btn-sm">Change Phone</a>
-    </small>
-</div>
 
 {% endblock content %}
