@@ -48,10 +48,6 @@ class User_Tools:
 
     @staticmethod
     def Send_Sms(user):
-        P_Service = Public_Service(User)
-        Sec_Service = Email_Token_Security()
-        user.secret_code = Sec_Service.Generate_Random_Secret_Key(40000, 60000)
-        P_Service.Save_Changes()
 
         url = "https://sms-wrapper-uat.k8s.daan.ir/api/v1/sms/send?sms_service_id=0"
         phone_number = f"{user.phone}".replace('0', '98', 1)
@@ -66,8 +62,6 @@ class User_Tools:
 
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.text)
-        user.secret_code = Sec_Service.Generate_Random_Secret_Key(40000, 60000)
-        P_Service.Save_Changes()
 
     @staticmethod
     def Is_Account_Active(user):

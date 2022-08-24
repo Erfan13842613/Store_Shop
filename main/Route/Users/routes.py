@@ -14,6 +14,7 @@ user_tools = User_Tools()
 user_service = User_Service()
 Db = Public_Service(User)
 Db_Card = Public_Service(Card)
+Sec_Service = Email_Token_Security()
 
 
 @users.route('/signin', methods=['GET', 'POST'])
@@ -124,11 +125,12 @@ def Confrim_Email(user_id):
     user = Db.Get_By_Id_Or_404(user_id)
     if user.user_is_active == 1:
         return redirect(url_for('base.HomePage'))
-
     form = Confrim_Email_Form()
     if form.validate_on_submit():
         if form.confrim_code.data == user.secret_code:
             user.user_is_active = 1
+            user.secret_code = Sec_Service.Generate_Random_Secret_Key(
+                40000, 60000)
             Db.Save_Changes()
             flash('Your Account Is Acctive Know', 'success')
             return redirect(url_for('base.HomePage'))
@@ -143,6 +145,8 @@ def Send_SMS(user_id):
     user = Db.Get_By_Id_Or_404(user_id)
     if user.user_is_active == 1:
         return redirect(url_for('base.HomePage'))
+    user.secret_code = Sec_Service.Generate_Random_Secret_Key(40000, 60000)
+    Db.Save_Changes()
     if user_tools.Send_Sms(user) == False:
         flash('This Is Equal To Zero , Error In Merging The Number')
     flash('You Have 2 Mintues To Enter Your Code OtherWise The Code Will Expire !', 'info')
