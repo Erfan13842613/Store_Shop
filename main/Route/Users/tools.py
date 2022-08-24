@@ -4,7 +4,6 @@ from main.Core.Security import Email_Token_Security
 from main.DataLayer.Core.User_Services import User_Service
 from main.DataLayer.Database.models import User
 import requests
-import time
 import json
 
 
