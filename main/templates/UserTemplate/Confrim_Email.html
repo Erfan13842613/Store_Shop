@@ -47,7 +47,7 @@
 
     const interval = setInterval(() => {
         if (timerCounter <= 1) {
-            window.location.href = "{{ url_for('users.Confrim_Email',user_id=current_user.id) }}"
+            window.location.href = "{{ url_for('users.Send_SMS',user_id=current_user.id) }}"
             clearInterval(interval);
         }
 
