@@ -29,7 +29,7 @@ def Static_Transaction(bank_id):
         abort(403)
 
     if user_tools.Is_Account_Active(bank_account.user):
-        flash('Your Account Is Not Active','danger')
+        flash('Your Account Is Not Active', 'danger')
         return redirect(url_for('base.HomePage'))
 
     transactions = static_service.Get_Paginated_Transactions_By_Bank(page,
@@ -47,7 +47,7 @@ def Create_Trans(bank_id):
         abort(403)
 
     if user_tools.Is_Account_Active(account.user):
-        flash('Your Account Is Not Active','danger')
+        flash('Your Account Is Not Active', 'danger')
         return redirect(url_for('base.HomePage'))
 
     form = Create_Static_Transaction_Form()
@@ -68,7 +68,7 @@ def Update_Trans(trans_id):
         abort(403)
 
     if user_tools.Is_Account_Active(transaction.bank.user):
-        flash('Your Account Is Not Active','danger')
+        flash('Your Account Is Not Active', 'danger')
         return redirect(url_for('base.HomePage'))
 
     form = Create_Static_Transaction_Form()
@@ -79,6 +79,7 @@ def Update_Trans(trans_id):
         transaction.changed_money = form.changed_money.data
         transaction.reason = form.reason.data
         transaction.started_date = form.started_date.data
+        transaction.bank.balance = transaction.remained_money
         static_pu_service.Save_Changes()
         flash('transaction Updated Successfully', 'success')
         return redirect(url_for('static.Static_Transaction', bank_id=transaction.bank.id))
@@ -99,7 +100,7 @@ def Delete_Trans(trans_id):
         abort(403)
 
     if user_tools.Is_Account_Active(transaction.bank.user):
-        flash('Your Account Is Not Active','danger')
+        flash('Your Account Is Not Active', 'danger')
         return redirect(url_for('base.HomePage'))
 
     static_pu_service.Del_To(transaction)

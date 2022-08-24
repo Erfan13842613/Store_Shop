@@ -1,13 +1,12 @@
-import time
 from flask import Blueprint, flash, redirect, abort, render_template, request, url_for
 from flask_login import current_user, login_required, logout_user
 from main.Core.Db_Core import Public_Service
 from main.Core.Security import Email_Token_Security
 from main.DataLayer.Core.User_Services import User_Service
 from main.DataLayer.Database.models import Card, User
-
 from main.Route.Users.forms import AccountForm, ChangePasswordForm, Confrim_Email_Form, SignInForm, SignUpForm
 from main.Route.Users.tools import User_Tools
+import redis
 
 users = Blueprint('users', __name__)
 user_tools = User_Tools()
@@ -122,17 +121,33 @@ def Logout():
 @users.route('/home/active/email/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 def Confrim_Email(user_id):
+    # Getting User Or 404
     user = Db.Get_By_Id_Or_404(user_id)
+
+    # Checking For Some DumbAss Works
     if user.user_is_active == 1:
         return redirect(url_for('base.HomePage'))
+    # Saving In Redis For Have Only One Message For Send # After 2 Min It Will Be Sended Automaticly
+    r = redis.Redis()
+    is_sms = r.get('{}_SEND_SMS'.format(user.id))
+    is_user = r.get(user.username)
+    # Checking For Several Message Sending
+    if is_sms != 'YES' and is_user == None and is_user != user.username:
+        user_tools.Send_Sms(user)
+        r.set(user.username, user.username)
+        r.set('{}_SEND_SMS'.format(user.id), 'YES')
     form = Confrim_Email_Form()
     if form.validate_on_submit():
+        # Checking Seceret Code For Activition
         if form.confrim_code.data == user.secret_code:
             user.user_is_active = 1
             user.secret_code = Sec_Service.Generate_Random_Secret_Key(
                 40000, 60000)
             Db.Save_Changes()
             flash('Your Account Is Acctive Know', 'success')
+            # Deleteing Stored Data From Redis
+            r.delete('{}_SEND_SMS'.format(user.id))
+            r.delete(user.username)
             return redirect(url_for('base.HomePage'))
         else:
             flash('Wronge Verify Code', 'danger')

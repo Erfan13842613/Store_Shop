@@ -13,7 +13,7 @@ base = Blueprint('base', __name__)
 Db_Pu_Product = Public_Service(Product)
 Db_Pu_User = Public_Service(User)
 user_service = User_Service()
-Site_Pu_Service=Public_Service(StaticSite)
+Site_Pu_Service = Public_Service(StaticSite)
 cilent_service = Cilent_Service()
 
 
@@ -48,12 +48,11 @@ def Cart():
 def About_Us():
     r = redis.Redis()
     message = r.get('TEXT')
+    flash('{} {}'.format(r.get('SEND_SMS'), r.get('USER')))
     if message is None:
-        text=Site_Pu_Service.Get_By_Id(0)
-        r.set('TEXT',text.text)
+        text = Site_Pu_Service.Get_By_Id(0)
+        r.set('TEXT', text.text)
         print('Cathced From Database And Setted For Redis')
     else:
         print('Catched From Redis')
     return render_template('BaseTemplate/About_Us.html', message=message)
-
-
